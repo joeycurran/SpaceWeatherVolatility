@@ -1,3 +1,5 @@
+## ⚠️ Development of this project is on-going
+
 # SpaceWeatherVolatility 🌌
 
 **Predicting geomagnetic volatility using solar-wind and flare data**
@@ -29,4 +31,4 @@ Each API is wrapped in lightweight Python clients under `src/api/`.
 
 ---
 
-## Development of this package is on-going
+
