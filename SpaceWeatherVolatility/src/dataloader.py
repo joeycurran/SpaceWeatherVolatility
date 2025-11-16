@@ -1,11 +1,11 @@
 import pandas as pd
 from pathlib import Path
-from pyspedas import get_data, tplot_names
+from pyspedas import get_data
 from pyspedas.projects.omni import data as omni_data
 from pyspedas.projects.kyoto import dst, load_ae
 from pyspedas.projects.noaa import noaa_load_kp
 
-TRANGE = ["2009-06-01", "2009-06-15"]
+TRANGE = ["2009-06-01", "2009-12-31"]
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -94,6 +94,7 @@ def postprocess_time_alignment(df: pd.DataFrame) -> pd.DataFrame:
     # Forward-fill Kp within each 3-hour window
     # First resample Kp to 3-hour bins, then expand to hourly
     df_kp = df[["Kp"]].resample("3H").mean()
+    df_kp["Kp_int"] = (df_kp["Kp"] * 3).round().astype("Int64")
     df_kp_hourly = df_kp.reindex(df_hourly.index, method="ffill")
 
     # Replace Kp column with the aligned version

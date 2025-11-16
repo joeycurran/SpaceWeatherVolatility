@@ -1,0 +1,7 @@
+..data/raw/
+*.cdf
+*.txt
+*.tab
+*.dat
+pydata/
+..data/
