@@ -1,9 +1,25 @@
-..data/raw/
+# Ignore all project data
+data/
+pydata/
+geom_*/
+goes_data/
+
+# Raw science formats
 *.cdf
+*.nc
 *.txt
 *.tab
 *.dat
-pydata/
-../data/
-geom_*
-goes_data
+*.gz
+
+# Notebooks
+notebooks/*.ipynb
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Mac junk
+.DS_Store
