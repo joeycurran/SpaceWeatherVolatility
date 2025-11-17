@@ -4,4 +4,6 @@
 *.tab
 *.dat
 pydata/
-..data/
+../data/
+geom_*
+goes_data
