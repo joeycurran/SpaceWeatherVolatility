@@ -1,11 +1,14 @@
 import pandas as pd
+import numpy as np
 from pathlib import Path
 from pyspedas import get_data
 from pyspedas.projects.omni import data as omni_data
 from pyspedas.projects.kyoto import dst, load_ae
 from pyspedas.projects.noaa import noaa_load_kp
+from pyspedas.projects.goes import xrs
 
-TRANGE = ["2009-06-01", "2009-12-31"]
+
+TRANGE = ["2010-09-01", "2011-03-30"]
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -103,17 +106,40 @@ def postprocess_time_alignment(df: pd.DataFrame) -> pd.DataFrame:
     return df_hourly
 
 
+def load_goes_xrs(TRANGE=TRANGE, probe="15") -> pd.DataFrame:
+    xrs(trange=TRANGE, probe=probe)
+
+    # Convert tplot variables to DataFrames
+    df_A = _to_df(f"g{probe}_xrs_A_AVG", "xray_A")
+    df_B = _to_df(f"g{probe}_xrs_B_AVG", "xray_B")
+
+    # Merge short + long channels
+    df_goes = df_A.merge(df_B, on="time", how="outer")
+
+    return df_goes.sort_values("time").reset_index(drop=True)
+
+
 def main():
+    # Load individual datasets
+    df_goes = load_goes_xrs(TRANGE)
     df_omni = load_omni_data(TRANGE)
     df_kyoto = load_kyoto_data(TRANGE)
     df_noaa = load_noaa_data(TRANGE)
-    df_merged = merge_dataframes([df_omni, df_kyoto, df_noaa])
-    OUTFILEMERGED.parent.mkdir(exist_ok=True, parents=True)
+
+    # Merge all datasets
+    df_merged = merge_dataframes([df_omni, df_kyoto, df_noaa, df_goes])
+
+    # flare intensity
+    df_merged["flare_intensity"] = np.log10(df_merged["xray_B"] + 1e-12)
+
     df_merged.to_csv(OUTFILEMERGED, index=False)
 
+    # Time alignment to hourly
     df_aligned = postprocess_time_alignment(df_merged)
-    df_aligned.to_csv(OUTFILEALIGNED)
-    print(f"✅ Saved hourly-aligned dataset to {OUTFILEALIGNED}")
+    df_aligned.to_csv(OUTFILEALIGNED, index=False)
+
+    print(f"Saved merged dataset -> {OUTFILEMERGED}")
+    print(f"Saved hourly aligned dataset -> {OUTFILEALIGNED}")
 
 
 if __name__ == "__main__":
