@@ -23,3 +23,5 @@ __pycache__/
 
 # Mac junk
 .DS_Store
+
+../.DS_Store
